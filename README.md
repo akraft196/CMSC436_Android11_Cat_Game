@@ -33,7 +33,7 @@ __NOTE:__ while the origin url will vary and be unique for everyone the upstream
 
 `upstream` is a common repository that everyone will be able to `pull` from and add new files and changes to existing files in their own repositories. Your access to this repository is read only - in terms of git commands this is analogous to `git pull`. You can write to your origin repository and this is analagous to `git push`. The flow for the course is we will add new started code for projects/exercises to `upstream` and then to receive them you will issue the following command:  
 `git pull upstream master` .  
-This command will add the changes in the `upstream` repository to your local compy of your repository. At this point your local repository and your `origin` will be different. You can verify this by running `git status`. You should see something along the lines of your local repository is 1 (or more) commits ahead of origin master. To resolve this you just need to run:  
+This command will add the changes in the `upstream` repository to your local copy of your repository. At this point your local repository and your `origin` will be different. You can verify this by running `git status`. You should see something along the lines of your local repository is 1 (or more) commits ahead of origin master. To resolve this you just need to run:  
  `git push origin master`. Once that is done your local repository and your remote `origin` will be the same.  
 
  ### submitting your work  
