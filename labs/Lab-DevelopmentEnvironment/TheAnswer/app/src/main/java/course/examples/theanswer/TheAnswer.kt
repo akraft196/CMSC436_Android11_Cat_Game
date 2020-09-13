@@ -24,6 +24,7 @@ class TheAnswer : Activity() {
 
         // Get a reference to a TextView in the content view
         val answerView = findViewById<TextView>(R.id.answer_view)
+        Log.i(TAG,  "Printing the answer to life")
         val value = findAnswer()
         val output =
                 if (value == answer) answer.toString() else getString(R.string.never_know_string)
