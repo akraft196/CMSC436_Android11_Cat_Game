@@ -4,12 +4,14 @@
 package course.labs.activitylab
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Button
 import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_one.*
 
 class ActivityTwo : Activity() {
 
@@ -20,10 +22,17 @@ class ActivityTwo : Activity() {
     // onResume()
     // You will need to increment these variables' values when their
     // corresponding lifecycle methods get called
-
+    var createCount = 0
+    var restartCount = 0
+    var startCount = 0
+    var resumeCount = 0
 
 
     // TODO: Create variables for each of the TextViews
+    lateinit var textViewCreate:TextView
+    lateinit var textViewStart:TextView
+    lateinit var textViewRestart:TextView
+    lateinit var textViewResume:TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +41,10 @@ class ActivityTwo : Activity() {
         // TODO: Assign the appropriate TextViews to the TextView variables
         // Hint: Access the TextView by calling Activity's findViewById()
         // textView1 = (TextView) findViewById(R.id.textView1);
-
+        textViewCreate = findViewById(R.id.create)
+        textViewStart = findViewById(R.id.start)
+        textViewRestart = findViewById(R.id.restart)
+        textViewResume = findViewById(R.id.resume)
 
 
         val closeButton = findViewById<Button>(R.id.bClose)
@@ -40,7 +52,7 @@ class ActivityTwo : Activity() {
             // TODO:
             // This function closes Activity Two
             // Hint: use Context's finish() method
-
+            finish()
 
         }
 
@@ -50,6 +62,14 @@ class ActivityTwo : Activity() {
             // TODO:
             // Restore value of counters from saved state
             // Only need 4 lines of code, one for every count variable
+            savedInstanceState.let { createCount = it.getInt(CREATE_KEY) }
+            savedInstanceState.let { restartCount = it.getInt(RESTART_KEY) }
+            savedInstanceState.let { startCount = it.getInt(START_KEY) }
+            savedInstanceState.let { resumeCount = it.getInt(RESUME_KEY) }
+//            createCount = intent.getIntExtra("createCount", 0)
+//            restartCount = intent.getIntExtra("restartCount", 0)
+//            startCount = intent.getIntExtra("startCount", 0)
+//            resumeCount = intent.getIntExtra("resumeCount", 0)
 
         }
 
@@ -60,7 +80,8 @@ class ActivityTwo : Activity() {
         // TODO:
         // Update the appropriate count variable
         // Update the user interface via the displayCounts() method
-
+        createCount += 1
+        displayCounts()
     }
 
     // Lifecycle callback methods overrides
@@ -73,8 +94,9 @@ class ActivityTwo : Activity() {
 
         // TODO:
         // Update the appropriate count variable
+        startCount += 1
         // Update the user interface
-
+        displayCounts()
     }
 
     public override fun onResume() {
@@ -87,13 +109,16 @@ class ActivityTwo : Activity() {
         // TODO:
         // Update the appropriate count variable
         // Update the user interface
-
+        resumeCount += 1
+        // Update the user interface
+        displayCounts()
     }
 
     public override fun onPause() {
         super.onPause()
 
         // Emit LogCat message
+        Log.i(TAG, "Entered the onPause() method")
         // Follow the previous 2 examples provided
 
 
@@ -103,6 +128,7 @@ class ActivityTwo : Activity() {
         super.onStop()
 
         // Emit LogCat message
+        Log.i(TAG, "Entered the onStop() method")
         // Follow the previous 2 examples provided
 
     }
@@ -111,12 +137,15 @@ class ActivityTwo : Activity() {
         super.onRestart()
 
         // Emit LogCat message
+        Log.i(TAG, "Entered the onRestart() method")
         // Follow the previous 2 examples provided
 
 
         // TODO:
         // Update the appropriate count variable
+        restartCount += 1
         // Update the user interface
+        displayCounts()
 
     }
 
@@ -124,6 +153,7 @@ class ActivityTwo : Activity() {
         super.onDestroy()
 
         // Emit LogCat message
+        Log.i(TAG, "Entered the onDestroy() method")
         // Follow the previous 2 examples provided
 
 
@@ -134,13 +164,21 @@ class ActivityTwo : Activity() {
         // TODO:
         // Save counter state information with a collection of key-value pairs
         // 4 lines of code, one for every count variable
-
-
+        savedInstanceState.apply {
+            putInt(CREATE_KEY, createCount)
+            putInt(RESTART_KEY, restartCount)
+            putInt(START_KEY, startCount)
+            putInt(RESUME_KEY, resumeCount)
+        }
+        super.onSaveInstanceState(savedInstanceState)
     }
 
     // Updates the displayed counters
     private fun displayCounts() {
-        
+        textViewCreate.setText("onCreate() calls: $createCount")
+        textViewRestart.setText("onRestart() calls: $restartCount")
+        textViewResume.setText("onResume() calls: $resumeCount")
+        textViewStart.setText("onStart() calls: $startCount")
 
     }
 
