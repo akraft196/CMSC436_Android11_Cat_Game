@@ -103,6 +103,7 @@ class ActivityTwo : Activity() {
         super.onResume()
 
         // Emit LogCat message
+        Log.i(TAG, "Entered the onResume() method")
         // Follow the previous 2 examples provided
 
 

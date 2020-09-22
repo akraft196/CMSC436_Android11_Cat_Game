@@ -1,0 +1,14 @@
+a) I opened it.  Good job me.
+
+b)  Activity 1: onCreate -> onStart -> onResume -> onPause -> onStop
+    Activity 2: onCreate -> onStart -> onResume
+	
+c) Activity 2: -> onPause -> onStop -> onDestroy
+   Activity 1: -> onRestart -> onStart -> onResume
+   
+   
+d) Activity 1: -> onPause -> onStop
+   Activity 2: -> onCreate -> onStart -> onResume -> onPause -> onStop
+   
+e) Activity 2: -> onRestart -> onStart -> onResume
+   Activity 1: <Nothing>
