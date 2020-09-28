@@ -67,8 +67,9 @@ class TestPhoneStatus {
 
     @Test
     fun testPermissionRequested() {
-        val PermissionDialog = mDevice!!.wait(Until.findObject(By.text("ALLOW")), 2000)
-        PermissionDialog?.click()
+        val allowButtonPattern = Pattern.compile("ALLOW", Pattern.CASE_INSENSITIVE)
+        val permissionDialog = mDevice!!.wait(Until.findObject(By.text(allowButtonPattern)), 2000)
+        permissionDialog?.click()
         val phonePattern = Pattern.compile("Phone Number: \\+?\\d+")
         val phoneNumber = mDevice!!.wait(Until.findObject(By.text(phonePattern)), 5000)
         assertNotNull(phoneNumber)
