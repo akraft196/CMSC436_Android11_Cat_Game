@@ -68,8 +68,9 @@ class TestGoToDangerousApp {
         assertNotNull("GoToDangerousActivity Didn't start", startDangerousApp)
         startDangerousApp.click()
         //
-        val PermissionDialog = mDevice!!.wait(Until.findObject(By.text("ALLOW")), 2000)
-        PermissionDialog?.click()
+        val allowButtonPattern = Pattern.compile("ALLOW", Pattern.CASE_INSENSITIVE)
+        val permissionDialog = mDevice!!.wait(Until.findObject(By.text(allowButtonPattern)), 2000)
+        permissionDialog?.click()
         val phoneNumber = mDevice!!.wait(Until.findObject(By.text("You have opened a dangerous activity")), 5000)
         assertNotNull(phoneNumber)
     }
