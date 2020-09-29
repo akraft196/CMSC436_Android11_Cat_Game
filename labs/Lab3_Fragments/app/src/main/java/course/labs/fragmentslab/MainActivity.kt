@@ -71,11 +71,11 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener {
 
         }
         else {
-            mFeedFragment = FeedFragment()
-            val ft = supportFragmentManager.beginTransaction()
-            ft.add(R.id.feed_frag, mFeedFragment)
-            ft.commit()
-            supportFragmentManager.executePendingTransactions()
+            mFeedFragment = supportFragmentManager.findFragmentById(R.id.feed_frag) as FeedFragment
+//            val ft = supportFragmentManager.beginTransaction()
+//            ft.add(R.id.feed_frag, mFeedFragment)
+//            ft.commit()
+//            supportFragmentManager.executePendingTransactions()
         }
 
 
