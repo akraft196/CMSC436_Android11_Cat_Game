@@ -15,12 +15,17 @@ class ActivityLoaderActivity : Activity() {
 
         val startPhoneStatusButton = findViewById<View>(R.id.start_phone_status_button) as Button
         // TODO - Add onClickListener to the startPhoneStatusButton to call startPhoneStatusActivity()
+        startPhoneStatusButton.setOnClickListener {
+            startPhoneStatusActivity()
+        }
     }
 
     private fun startPhoneStatusActivity() {
         Log.i(TAG, "Entered startPhoneStatusActivity()")
 
         // TODO - Start the PhoneStatusActivity
+        val intent = Intent(this, PhoneStatusActivity::class.java)
+        startActivity(intent)
     }
 
     companion object {

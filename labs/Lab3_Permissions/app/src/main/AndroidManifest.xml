@@ -5,6 +5,11 @@
     android:versionName="1.0" >
 
     <!--  TODO add uses permission elements -->
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission
+        android:name="course.labs.permissions.DANGEROUS_ACTIVITY_PERM"/>
 
     <application
         android:allowBackup="true"

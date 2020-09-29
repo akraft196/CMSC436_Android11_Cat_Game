@@ -20,11 +20,26 @@ class GoToDangerousActivity : Activity() {
         setContentView(R.layout.go_to_dangerous_activity)
 
         // TODO - Set startDangerousActivityButton value to the button with id R.id.start_dangerous_activity_button
-
+        val startDangerousActivityButton = findViewById<View>(R.id.start_dangerous_activity_button) as Button
         // TODO - Add onClickListener to the startDangerousActivityButton to call startDangerousActivity()
+        startDangerousActivityButton.setOnClickListener {
+            if (needsRuntimePermission()) {
+                requestPermissions(arrayOf(DANGEROUS_ACTIVITY_PERM), MY_PERMISSIONS_REQUEST_DANGEROUS_ACTIVITY)
+            } else {
+                startDangerousActivity()
+            }
 
+        }
 
     }
+
+    private fun needsRuntimePermission(): Boolean {
+        // Check the SDK version and whether the permission is already granted.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
+                DANGEROUS_ACTIVITY_PERM
+        ) != PackageManager.PERMISSION_GRANTED
+    }
+
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
@@ -61,6 +76,8 @@ class GoToDangerousActivity : Activity() {
         val MY_PERMISSIONS_REQUEST_DANGEROUS_ACTIVITY = 2
 
         private val DANGEROUS_ACTIVITY_ACTION = "course.labs.permissions.DANGEROUS_ACTIVITY"
+
+        private val DANGEROUS_ACTIVITY_PERM = "course.labs.permissions.DANGEROUS_ACTIVITY_PERM"
     }
 
 }

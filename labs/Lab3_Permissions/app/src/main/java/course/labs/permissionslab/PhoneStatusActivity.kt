@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
@@ -18,18 +19,38 @@ import android.widget.TextView
 
 class PhoneStatusActivity : Activity() {
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.phone_status_activity)
 
         val getPhoneNumButton = findViewById<View>(R.id.get_phone_number_button) as Button
         // TODO - Add onClickListener to the getPhoneNumButton to call loadPhoneNumber()
+        getPhoneNumButton.setOnClickListener {
+            if (needsRuntimePermission()) {
+                requestPermissions(arrayOf(READ_PHONE_PERM), MY_PERMISSIONS_REQUEST_READ_PHONE_STATE)
+            } else {
+                loadPhoneNumber()
+            }
 
+        }
 
         val goToDangerousActivityButton = findViewById<View>(R.id.go_to_dangerous_activity_button) as Button
         // TODO - Add onClickListener to the goToDangerousActivityButton to call startGoToDangerousActivity()
+        goToDangerousActivityButton.setOnClickListener {
+            startGoToDangerousActivity()
+        }
 
     }
+
+    private fun needsRuntimePermission(): Boolean {
+        // Check the SDK version and whether the permission is already granted.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
+                READ_PHONE_PERM
+        ) != PackageManager.PERMISSION_GRANTED
+    }
+
+
 
     private fun loadPhoneNumber() {
 
@@ -67,7 +88,8 @@ class PhoneStatusActivity : Activity() {
         Log.i(TAG, "Entered startGoToDangerousActivity()")
 
         // TODO - Start the GoToDangerousActivity
-
+        val intent = Intent(this, GoToDangerousActivity::class.java)
+        startActivity(intent)
 
     }
 
@@ -75,6 +97,7 @@ class PhoneStatusActivity : Activity() {
 
         private val TAG = "Lab-Permissions"
         val MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1
+        val READ_PHONE_PERM = "android.permission.READ_PHONE_STATE"
     }
 
 }
