@@ -10,6 +10,7 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener {
     private lateinit var mFriendsFragment: FriendsFragment
     private var mFeedFragment: FeedFragment? = null
 
+
     // If there is no fragment_container ID, then the application is in
     // two-pane mode
 
@@ -28,12 +29,21 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener {
             mFriendsFragment = FriendsFragment()
 
             //TODO 1 - add the FriendsFragment
-
+            val ft = supportFragmentManager.beginTransaction()
+            ft.add(R.id.fragment_container, mFriendsFragment)
+            ft.commit()
 
             // Otherwise, save a reference to the FeedFragment for later use
-
+            mFeedFragment = FeedFragment()
 
         }
+        else {
+
+            val ft = supportFragmentManager.beginTransaction()
+            ft.add(R.id.friends_frag, FriendsFragment())
+            ft.commit()
+        }
+
 
     }
 
@@ -53,10 +63,21 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener {
                 mFeedFragment = FeedFragment()
 
             //TODO 2 - replace the fragment_container with the FeedFragment
-
-            
+            val ft = supportFragmentManager.beginTransaction()
+            ft.replace(R.id.fragment_container, mFeedFragment)
+            ft.addToBackStack(null)
+            ft.commit()
+            supportFragmentManager.executePendingTransactions()
 
         }
+        else {
+            mFeedFragment = FeedFragment()
+            val ft = supportFragmentManager.beginTransaction()
+            ft.add(R.id.feed_frag, mFeedFragment)
+            ft.commit()
+            supportFragmentManager.executePendingTransactions()
+        }
+
 
         // Update Twitter feed display on FriendFragment
         mFeedFragment?.updateFeedDisplay(position)
