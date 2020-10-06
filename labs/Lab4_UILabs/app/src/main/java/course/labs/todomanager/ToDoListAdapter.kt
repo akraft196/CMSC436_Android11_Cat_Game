@@ -109,11 +109,20 @@ class ToDoListAdapter(private val mContext: Context) : BaseAdapter() {
 
 
         // TODO - Set up Status CheckBox
-        if(mItems[position].status == Status.DONE){
+        if(currentItem.status == Status.DONE){
             viewHolder.mStatusView?.setChecked(true)
         } else {
             viewHolder.mStatusView?.setChecked(false)
         }
+        viewHolder.mStatusView!!.setOnClickListener{
+            if (currentItem.status == Status.DONE){
+                currentItem.status = Status.NOTDONE
+            }
+            else {
+                currentItem.status = Status.DONE
+            }
+        }
+
 
         // TODO - Display Priority in a TextView
         viewHolder.mPriorityView?.text = currentItem.priority.toString()
