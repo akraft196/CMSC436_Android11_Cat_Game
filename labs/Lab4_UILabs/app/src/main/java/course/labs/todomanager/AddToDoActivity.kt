@@ -95,11 +95,17 @@ class AddToDoActivity : Activity() {
         cancelButton.setOnClickListener { Log.i(TAG, "Entered cancelButton.OnClickListener.onClick()")
 
             // TODO - Indicate result and finish
-            
+            val resultIntent = Intent(baseContext, ToDoManagerActivity::class.java)
+            setResult(Activity.RESULT_CANCELED, resultIntent)
+            finish()
         }
 
         // TODO - Set up OnClickListener for the Reset Button
         resetButton.setOnClickListener {
+            mTitleText!!.text.clear()
+            mDefaultPriorityButton!!.isChecked = true
+            mDefaultStatusButton!!.isChecked = true
+            setDefaultDateTime()
 
         }
 

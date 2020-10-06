@@ -109,6 +109,8 @@ class ToDoManagerActivity : ListActivity() {
 
             val newToDo = ToDoItem(title, priority, status, finalDate)
             mAdapter.add(newToDo)
+        } else if (requestCode == ADD_TODO_ITEM_REQUEST && resultCode == Activity.RESULT_CANCELED) {
+            //do nothing?
         }
 
     }
