@@ -15,11 +15,11 @@ class ToDoItem {
     var date = Date()
 
     enum class Priority {
-        LOW, MED, HIGH
+        LOW, MED, HIGH, INV
     }
 
     enum class Status {
-        NOTDONE, DONE
+        NOTDONE, DONE, INV
     }
 
     internal constructor(title: String, priority: Priority, status: Status, date: Date) {

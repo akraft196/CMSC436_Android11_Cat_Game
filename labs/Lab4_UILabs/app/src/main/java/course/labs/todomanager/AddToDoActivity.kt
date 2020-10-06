@@ -8,20 +8,16 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.DialogFragment
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
-import android.widget.Button
-import android.widget.DatePicker
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.TimePicker
+import android.widget.*
 import course.labs.todomanager.ToDoItem.Priority
 import course.labs.todomanager.ToDoItem.Status
+import kotlinx.android.synthetic.main.add_todo.*
 
 class AddToDoActivity : Activity() {
 
@@ -99,11 +95,13 @@ class AddToDoActivity : Activity() {
         cancelButton.setOnClickListener { Log.i(TAG, "Entered cancelButton.OnClickListener.onClick()")
 
             // TODO - Indicate result and finish
-
+            
         }
 
         // TODO - Set up OnClickListener for the Reset Button
+        resetButton.setOnClickListener {
 
+        }
 
         // Set up OnClickListener for the Submit Button
 
@@ -112,9 +110,14 @@ class AddToDoActivity : Activity() {
             Log.i(TAG, "Entered submitButton.OnClickListener.onClick()")
 
             // TODO - gather ToDoItem data
+            val resultIntent = Intent(baseContext, ToDoManagerActivity::class.java)
+
+            ToDoItem.packageIntent(resultIntent, mTitleText!!.text.toString(), priority, status, dateString + " " + timeString)
 
 
             // TODO - return data Intent and finish
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
         }
     }
 
@@ -168,7 +171,7 @@ class AddToDoActivity : Activity() {
 
     class TimePickerFragment : DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
-        override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
             // Use the current time as the default values for the picker
             val c = Calendar.getInstance()
@@ -202,6 +205,9 @@ class AddToDoActivity : Activity() {
         private val SEVEN_DAYS = 604800000
 
         private val TAG = "Lab-UserInterface"
+
+//        private val RESULT_CANCEL = 1
+//        private val RESULT_SUBMIT = 2
 
         private var timeString: String? = null
         private var dateString: String? = null

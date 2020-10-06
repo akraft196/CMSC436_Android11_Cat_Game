@@ -11,12 +11,14 @@ import android.widget.BaseAdapter
 import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.CompoundButton.OnCheckedChangeListener
+import android.widget.CompoundButton.inflate
 import android.widget.RelativeLayout
 import android.widget.TextView
 import course.labs.todomanager.ToDoItem.Status
 
 class ToDoListAdapter(private val mContext: Context) : BaseAdapter() {
 
+    private var inflater: LayoutInflater = LayoutInflater.from(mContext)
     private val mItems = ArrayList<ToDoItem>()
 
     // Add a ToDoItem to the adapter
@@ -72,8 +74,6 @@ class ToDoListAdapter(private val mContext: Context) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
 
         // TODO - Get the current ToDoItem
-
-
         val viewHolder: ViewHolder
 
         if (null == convertView) {
@@ -81,6 +81,16 @@ class ToDoListAdapter(private val mContext: Context) : BaseAdapter() {
             viewHolder = ViewHolder()
 
             // TODO - Inflate the View for this ToDoItem
+            var inflater = LayoutInflater.from(mContext)
+            val view = inflater.inflate(R.layout.todo_item, null)
+            view.tag = viewHolder
+
+            viewHolder.position = view.verticalScrollbarPosition
+            viewHolder.mItemLayout = view as RelativeLayout
+            viewHolder.mTitleView = view.findViewById(R.id.titleView)
+            viewHolder.mPriorityView = view.findViewById(R.id.priorityView)
+            viewHolder.mDateView = view.findViewById(R.id.dateView)
+            viewHolder.mStatusView = view.findViewById(R.id.statusCheckBox)
 
         } else {
             viewHolder = convertView.tag as ViewHolder
@@ -92,16 +102,23 @@ class ToDoListAdapter(private val mContext: Context) : BaseAdapter() {
         // Remember that the data that goes in this View
         // corresponds to the user interface elements defined
         // in the layout file
+        val currentItem = getItem(position) as ToDoItem
 
         // TODO - Display Title in TextView
+        viewHolder.mTitleView?.text = currentItem.title
 
 
         // TODO - Set up Status CheckBox
-
+        if(mItems[position].status == Status.DONE){
+            viewHolder.mStatusView?.setChecked(true)
+        } else {
+            viewHolder.mStatusView?.setChecked(false)
+        }
 
         // TODO - Display Priority in a TextView
-
+        viewHolder.mPriorityView?.text = currentItem.priority.toString()
         // TODO - Display Time and Date
+        viewHolder.mDateView?.text = ToDoItem.FORMAT.format(currentItem.date)
 
         return viewHolder.mItemLayout
 

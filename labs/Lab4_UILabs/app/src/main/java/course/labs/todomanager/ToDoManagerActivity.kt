@@ -1,5 +1,6 @@
 package course.labs.todomanager
 
+import android.annotation.TargetApi
 import android.app.Activity
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -16,6 +17,7 @@ import java.util.Date
 import android.app.ListActivity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,9 +25,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.OnClickListener
+import android.view.View.inflate
 import android.widget.TextView
 import course.labs.todomanager.ToDoItem.Priority
 import course.labs.todomanager.ToDoItem.Status
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ToDoManagerActivity : ListActivity() {
 
@@ -41,16 +46,23 @@ class ToDoManagerActivity : ListActivity() {
         listView.setFooterDividersEnabled(true)
 
         // TODO - Inflate footerView for footer_view.xml file
-
+        //setContentView(R.layout.footer_view)
+        val footerView = inflate(this, R.layout.footer_view, null)
 
         // TODO - Add footerView to ListView
+        listView.addFooterView(footerView)
 
         // TODO - Attach Listener to FooterView
+        footerView.setOnClickListener {
+            val intent = Intent(this, AddToDoActivity::class.java)
+            startActivityForResult(intent, ADD_TODO_ITEM_REQUEST)
+        }
 
         // TODO - Attach the adapter to this ListActivity's ListView
-
+        listView.adapter = mAdapter
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         Log.i(TAG, "Entered onActivityResult()")
@@ -59,6 +71,45 @@ class ToDoManagerActivity : ListActivity() {
         // if user submitted a new ToDoItem
         // Create a new ToDoItem from the data Intent
         // and then add it to the adapter
+        if(requestCode == ADD_TODO_ITEM_REQUEST && resultCode == Activity.RESULT_OK){
+            //set priority from appropriate returned extras string
+            val priority: Priority
+            val priorityString = data?.extras?.get(ToDoItem.PRIORITY) as String
+            if (priorityString == "HIGH"){
+                priority = ToDoItem.Priority.HIGH
+            } else if (priorityString == "MED"){
+                priority = ToDoItem.Priority.MED
+            } else if (priorityString == "LOW"){
+                priority = ToDoItem.Priority.LOW
+            } else {
+                priority = Priority.INV
+            }
+
+            //set status from appropriate returned extras string
+            val status: Status
+            val statusString = data?.extras?.get(ToDoItem.STATUS) as String
+            if (statusString == "DONE"){
+                status = ToDoItem.Status.DONE
+            } else if (statusString == "NOTDONE"){
+                status = Status.NOTDONE
+            } else {
+                status = Status.INV
+            }
+
+            //set date from appropriate returned extras string
+            val date: LocalDateTime
+            val dateString = data?.extras?.get(ToDoItem.DATE) as String
+            val finalDate: Date
+
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            date = LocalDateTime.parse(dateString, formatter)
+            finalDate = Date(date.year-1900, date.monthValue-1, date.dayOfMonth, date.hour, date.minute, date.second) //lol I have no idea why it adds 1900 years and 1 month
+
+            val title = data?.extras?.get(ToDoItem.TITLE) as String
+
+            val newToDo = ToDoItem(title, priority, status, finalDate)
+            mAdapter.add(newToDo)
+        }
 
     }
 
