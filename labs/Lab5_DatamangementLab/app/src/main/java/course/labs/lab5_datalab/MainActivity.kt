@@ -18,22 +18,39 @@ class MainActivity : AppCompatActivity() {
     protected lateinit var name: TextView
     protected lateinit var uidtv: TextView
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        sharedpreferences = baseContext.getSharedPreferences(mypreference, Context.MODE_PRIVATE)
+
+        name = findViewById(R.id.etName)
+        uidtv = findViewById(R.id.etUid)
     }
 
     fun Save(view: View) {
+        val currName = name.text.toString()
+        val currID = uidtv.text.toString()
+
+        val editor = sharedpreferences.edit()
+        editor.putString(Name, currName)
+        editor.putString(uid, currID)
+        editor.apply()
 
     }
 
     fun clear(view: View) {
-
+        name.text = ""
+        uidtv.text = ""
     }
 
     fun Get(view: View) {
+        val lastName = sharedpreferences.getString(Name, "")
+        val lastID = sharedpreferences.getString(uid, "")
 
+        name.text = lastName
+        uidtv.text = lastID
     }
 
     fun goToAnActivity(view: View) {

@@ -55,7 +55,7 @@ class ExternalTest {
 
 
     @Test
-    fun checkNameUID() {
+    fun checkSave() {
 //        onView(withId(R.id.button2)).perform(click())
         lateinit var myExternalFile: File
         val context = getInstrumentation().getTargetContext()
