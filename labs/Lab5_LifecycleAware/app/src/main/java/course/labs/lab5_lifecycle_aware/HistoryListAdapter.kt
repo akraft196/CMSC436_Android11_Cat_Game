@@ -16,6 +16,10 @@ class HistoryListAdapter (private val mContext: Context) : BaseAdapter()
         return history.size
     }
 
+//    fun add(string : String){
+//        history.add(string)
+//    }
+
     fun setHistory(newHistory: MutableList<String>){
         history =  newHistory
     }
