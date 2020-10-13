@@ -6,10 +6,10 @@ import androidx.lifecycle.OnLifecycleEvent
 
 //ToDo:
 class ActivityObserver(private val model: CounterViewModel) : LifecycleObserver{
+
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreateEvent() {
         Log.i(TAG, "Entered onCreate")
-
     }
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStartEvent()
@@ -34,6 +34,10 @@ class ActivityObserver(private val model: CounterViewModel) : LifecycleObserver{
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroyEvent() {
         Log.i(TAG, "ON_DESTROY event")
+    }
+
+    fun bindToActivityLifecycle(lifecycleMainActivity: LifecycleMainActivity){
+        lifecycleMainActivity.lifecycle.addObserver(this)
     }
 
     companion object

@@ -18,6 +18,7 @@ class CounterViewModel : ViewModel() {
 
     init{
         mCounter.value = 0
+        ActivityObserver(this)
     }
 
     fun getCount(): MutableLiveData<Int> {

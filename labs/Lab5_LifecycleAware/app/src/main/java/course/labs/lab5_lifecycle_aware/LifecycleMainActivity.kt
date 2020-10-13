@@ -10,6 +10,7 @@ import android.content.Context
 import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.history_list.view.*
 
 
@@ -41,7 +42,17 @@ class LifecycleMainActivity : AppCompatActivity() {
         addButton = findViewById(R.id.PrButton)
         resetButton = findViewById(R.id.ResButton)
 
+        //set the listView adapter
         historyListView.adapter = mAdapter
+
+        historyListView.setFooterDividersEnabled(true)
+        val footerView = layoutInflater.inflate(R.layout.history_list, null)
+        historyListView.addFooterView(footerView)
+
+        //both of these crash the program
+        //historyListView.DisplayText.text = ""
+        //footerView.DisplayText.text = ""
+
 
         //set up the observer to update the text view whenever the value of counter in mCounterViewModel changes, which SHOULD be every time addButton or resetButton is clicked (unless the count is already 0 and reset is clicked)
         val counterObserver = Observer<Int> { counterText.text = getScreenOrientation(this) + "-" + mCounterViewModel.getCount().value }
@@ -57,15 +68,16 @@ class LifecycleMainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        mCounterViewModel.historyAdd(counterText.text.toString())
-        mCounterViewModel.resetCount()
+    override fun onStart() {
+        super.onStart()
+        mAdapter.setHistory(mCounterViewModel.historyCounter)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        mAdapter.setHistory(mCounterViewModel.historyCounter)
+    override fun onPause() {
+        super.onPause()
+        //add the currently displayed text to the history var in the CounterViewModel
+        mCounterViewModel.historyAdd(counterText.text.toString())
+        //set the current count back to 0
+        mCounterViewModel.resetCount()
     }
 }

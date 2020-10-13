@@ -16,10 +16,6 @@ class HistoryListAdapter (private val mContext: Context) : BaseAdapter()
         return history.size
     }
 
-//    fun add(string : String){
-//        history.add(string)
-//    }
-
     fun setHistory(newHistory: MutableList<String>){
         history =  newHistory
     }
@@ -33,11 +29,11 @@ class HistoryListAdapter (private val mContext: Context) : BaseAdapter()
         return history[position]
     }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-       // val textView =TextView(mContext)
+        val textView =TextView(mContext)
         val layoutInflater = LayoutInflater.from(mContext).inflate(R.layout.history_list,parent,false)
         val txt = layoutInflater.findViewById<TextView>(R.id.Text)
         txt.text = history[position]
-        //textView.text = history[position]
+        textView.text = history[position]
         return txt
     }
 }
