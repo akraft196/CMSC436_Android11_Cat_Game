@@ -55,6 +55,8 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener, Down
             // TODO: Show a Toast message displaying
             // R.string.download_in_progress string
 
+            makeToast(getString(R.string.download_in_progress_string))
+
             // Set up a BroadcastReceiver to receive an Intent when download
             // finishes.
             mRefreshReceiver = object : BroadcastReceiver() {
@@ -62,6 +64,10 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener, Down
                     // TODO: Check to make sure this is an ordered broadcast
                     // Let sender know that the Intent was received
                     // by setting result code to MainActivity.IS_ALIVE
+                    if(isOrderedBroadcast){
+                        resultCode = MainActivity.IS_ALIVE
+                    }
+
                 }
             }
         } else {
@@ -102,12 +108,20 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener, Down
                 .add(mDownloaderFragment, TAG_DOWNLOADER_FRAGMENT).commit()
     }
 
+    private fun makeToast(string: String){
+        val toast = Toast.makeText(applicationContext, string, Toast.LENGTH_SHORT)
+        toast.show()
+    }
+
     // Register the BroadcastReceiver
     override fun onResume() {
         super.onResume()
 
         // TODO: Register the BroadcastReceiver to receive a
         // DATA_REFRESHED_ACTION broadcast
+        val intentFilter = IntentFilter(DATA_REFRESHED_ACTION)
+        registerReceiver(mRefreshReceiver, intentFilter)
+
     }
 
     override fun onPause() {
@@ -115,6 +129,9 @@ class MainActivity : FragmentActivity(), FriendsFragment.SelectionListener, Down
         // TODO: Unregister the BroadcastReceiver if it has been registered
         // Note: check that mRefreshReceiver is not null before attempting to
         // unregister in order to work around an Instrumentation issue
+        if(mRefreshReceiver != null){
+            unregisterReceiver(mRefreshReceiver)
+        }
 
         super.onPause()
     }

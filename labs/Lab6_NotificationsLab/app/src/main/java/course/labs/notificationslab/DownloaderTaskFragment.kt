@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ class DownloaderTaskFragment : Fragment() {
     private var mDownloaderTask: DownloaderTask? = null
     private var mCallback: DownloadFinishedListener? = null
     private lateinit var mContext: Context
+    private lateinit var mNotificationManager: NotificationManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -44,6 +46,8 @@ class DownloaderTaskFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
+
+        mNotificationManager = mContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Make sure that the hosting activity has implemented
         // the correct callback interface.
@@ -133,15 +137,17 @@ class DownloaderTaskFragment : Fragment() {
                         val notificationSentMsg = mContext
                                 .getString(R.string.notification_sent_string)
 
+                        @RequiresApi(Build.VERSION_CODES.O)
                         override fun onReceive(context: Context, intent: Intent) {
 
                             // TODO: Check whether or not the MainActivity
                             // received the broadcast
-                            if (true) {
+                            if (resultCode != MainActivity.IS_ALIVE) {
 
                                 // TODO: If not, create a PendingIntent using the
                                 // restartMainActivityIntent and set its flags
                                 // to FLAG_UPDATE_CURRENT
+                                val pendingIntent = PendingIntent.getActivity(context, 0, restartMainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
                                 // Uses R.layout.custom_notification for the
                                 // layout of the notification View. The xml
@@ -153,6 +159,13 @@ class DownloaderTaskFragment : Fragment() {
                                 // TODO: Set the notification View's text to
                                 // reflect whether the download completed
                                 // successfully
+                                if(success){
+                                    mContentView.setTextViewText(R.id.text, successMsg)
+                                }
+                                else{
+                                    mContentView.setTextViewText(R.id.text, failMsg)
+                                }
+
 
                                 // TODO: Use the Notification.Builder class to
                                 // create the Notification. You will have to set
@@ -161,7 +174,17 @@ class DownloaderTaskFragment : Fragment() {
                                 // for the small icon. You should also
                                 // setAutoCancel(true).
 
+                                createNotificationChannel()
+
+                                val notificationBuilder = Notification.Builder(mContext, channelID)
+                                        .setSmallIcon(android.R.drawable.stat_sys_warning)
+                                        .setAutoCancel(true)
+                                        .setCustomContentView(mContentView)
+                                        .setContentIntent(pendingIntent)
+
                                 // TODO: Send the notification
+                                mNotificationManager.notify(MY_NOTIFICATION_ID, notificationBuilder.build())
+                                makeToast(mContext.getString(R.string.notification_sent_string))
                             } else {
                                 Toast.makeText(mContext,
                                         if (success) successMsg else failMsg,
@@ -177,7 +200,16 @@ class DownloaderTaskFragment : Fragment() {
                 // TODO: Create Notification Channel with id channelID,
                 // name R.string.channel_name
                 // and description R.string.channel_description of high importance
+                val notificationChannel = NotificationChannel(channelID, mContext.getString(R.string.channel_name), NotificationManager.IMPORTANCE_HIGH)
+                notificationChannel.description = mContext.getString(R.string.channel_description)
+                mNotificationManager.createNotificationChannel(notificationChannel)
+
             }
+        }
+
+        private fun makeToast(string: String){
+            val toast = Toast.makeText(mContext, string, Toast.LENGTH_SHORT)
+            toast.show()
         }
 
         // Saves the tweets to a file
