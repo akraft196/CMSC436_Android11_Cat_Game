@@ -11,7 +11,7 @@ class TestValidation {
     // Add two tests for a valid password
     @Test
     fun testValidPass1() {
-        val password = "passw0rd"
+        val password = "pAssw0rd"
         assertTrue(validator.validPassword(password))
     }
 
@@ -24,7 +24,7 @@ class TestValidation {
     // Add two tests for an invalid password
     @Test
     fun testInvalidPass1(){
-        val password = "sh0rt"
+        val password = "sh0"
         assertFalse(validator.validPassword(password))
     }
 
