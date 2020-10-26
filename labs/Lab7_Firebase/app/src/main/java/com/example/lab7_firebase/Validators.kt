@@ -20,7 +20,10 @@ class Validators {
     // TODO: Validate password
     // Passwords should be at least 4 characters with 1 letter and 1 number
     fun validPassword(password: String?) : Boolean {
-
-        return true
+        if(password.isNullOrEmpty()){
+            return false
+        }
+        val passwordRegex = Regex("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,8}\$")
+        return passwordRegex.matches(password)
     }
 }

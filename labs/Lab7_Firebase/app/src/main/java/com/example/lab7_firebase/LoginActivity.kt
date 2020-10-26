@@ -1,9 +1,13 @@
 package com.example.lab7_firebase
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -38,7 +42,29 @@ class LoginActivity : AppCompatActivity() {
     // If the email and password are not empty, try to log in
     // If the login is successful, store info into intent and launch DashboardActivity
     private fun loginUserAccount() {
+        //taken from example code FirebaseEmailAuthExample/LoginActivity
+        progressBar?.visibility = View.VISIBLE
 
+        val email = userEmail?.text.toString()
+        val password = userPassword?.text.toString()
+
+        if(TextUtils.isEmpty(email)){
+            Toast.makeText(applicationContext, "Please enter email!", Toast.LENGTH_LONG).show()
+        }
+        if(TextUtils.isEmpty(password)){
+            Toast.makeText(applicationContext, "Please enter password!", Toast.LENGTH_LONG).show()
+        }
+
+        mAuth!!.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+            progressBar?.visibility = View.GONE
+            if(it.isSuccessful){
+                Toast.makeText(applicationContext, "Login successful!", Toast.LENGTH_LONG).show()
+                startActivity(Intent(this@LoginActivity, DashboardActivity::class.java).putExtra(
+                    USER_ID, mAuth!!.uid)) //might need to add uid as an extra
+            } else {
+                Toast.makeText(applicationContext, "Login failed! Please try again later", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     companion object {

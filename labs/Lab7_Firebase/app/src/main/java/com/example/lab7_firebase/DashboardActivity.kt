@@ -2,6 +2,7 @@ package com.example.lab7_firebase
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -82,29 +83,63 @@ class DashboardActivity : AppCompatActivity() {
 
         // TODO: Set update listener
         buttonUpdate.setOnClickListener {
-
+            val name = editTextName.text.toString().trim {it <= ' '}
+            val country = spinnerCountry.selectedItem.toString()
+            if(!TextUtils.isEmpty(name)){
+                updateAuthor(authorId, uid, name, country)
+                b.dismiss()
+            }
         }
 
         // TODO: Set delete listener
         buttonDelete.setOnClickListener {
-
+            deleteAuthor(authorId)
+            b.dismiss()
         }
     }
 
     // TODO: Add an author
     private fun addAuthor() {
+        Log.e(TAG, "Entered addAuthor")
+        val name = editTextName.text.toString().trim { it <= ' ' }
+        val country = spinnerCountry.selectedItem.toString()
 
+        if(!TextUtils.isEmpty(name)){
+            val id = databaseAuthors.push().key
+            val author = Author(id!!, name, country)
+
+            databaseAuthors.child(uid).child(id).setValue(author)
+
+            editTextName.setText("")
+
+            Toast.makeText(this, "Author added", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(this, "Please enter a name", Toast.LENGTH_LONG).show()
+        }
     }
 
     // TODO: Update an author
     private fun updateAuthor(id: String, uid: String, name: String, country: String): Boolean {
+        Log.e(TAG, "Entered updateAuthor")
+        val dR = FirebaseDatabase.getInstance().getReference("authors").child(uid).child(id)    //????
 
+        val author = Author(id, name, country)
+        dR.setValue(author)
+        Toast.makeText(applicationContext, "Author updated", Toast.LENGTH_LONG).show()
         return true
     }
 
     // TODO: Delete an author
     private fun deleteAuthor(id: String): Boolean {
+        Log.e(TAG,"Entered deleteAuthor")
+        val dR = FirebaseDatabase.getInstance().getReference("authors").child(uid).child(id)
 
+        dR.removeValue()
+
+        val drTitles = FirebaseDatabase.getInstance().getReference("titles").child(id)
+
+        drTitles.removeValue()
+        Toast.makeText(applicationContext, "Author deleted", Toast.LENGTH_LONG).show()
         return true
     }
 
