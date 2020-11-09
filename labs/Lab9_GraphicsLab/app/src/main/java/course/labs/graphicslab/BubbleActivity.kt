@@ -111,16 +111,16 @@ class BubbleActivity : Activity() {
         private val mPainter = Paint()
         private var mMoverFuture: ScheduledFuture<*>? = null
         private var mScaledBitmapWidth: Int = 0
-        private val mScaledBitmap: Bitmap? = null
+        private var mScaledBitmap: Bitmap? = null
 
         // location, speed and direction of the bubble
-        private val mXPos: Float
-        private val mYPos: Float
+        private var mXPos: Float
+        private var mYPos: Float
         private var mDx: Float = 0.toFloat()
         private var mDy: Float = 0.toFloat()
         private val mRadius: Float
         private val mRadiusSquared: Float
-        private val mRotate: Long = 0
+        private var mRotate: Long = 0
         private var mDRotate: Long = 0
 
         // Return true if the BubbleView is still on the screen after the move
@@ -128,7 +128,7 @@ class BubbleActivity : Activity() {
         private// TODO - Return true if the BubbleView is still on the screen after
         // the move operation
         val isOutOfView: Boolean
-            get() = false
+            get() = !(mXPos < 0 - mScaledBitmapWidth || mXPos > mDisplayWidth + mScaledBitmapWidth || mYPos < 0 - mScaledBitmapWidth || mYPos > mDisplayHeight + mScaledBitmapWidth)
 
         init {
             Log.i(TAG, "Creating Bubble at: x:$x y:$y")
@@ -163,7 +163,7 @@ class BubbleActivity : Activity() {
             if (speedMode == RANDOM) {
 
                 // TODO - set rotation in range [1..3]
-                mDRotate = 0
+                mDRotate = (r.nextInt(3-1) + 1).toLong()
 
             } else {
 
@@ -189,9 +189,15 @@ class BubbleActivity : Activity() {
                     mDx = 0f
                     mDy = 0f
                 }
+
+                RANDOM -> {
+                    mDx = -3f + r.nextFloat() * (3f + 3f)
+                    mDy = -3f + r.nextFloat() * (3f + 3f)
+                }
             }// TODO - Set movement direction and speed
             // Limit movement speed in the x and y
             // direction to [-3..3] pixels per movement.
+
         }
 
         private fun createScaledBitmap(r: Random) {
@@ -201,15 +207,15 @@ class BubbleActivity : Activity() {
             } else {
 
                 // TODO - set scaled bitmap size in range [1..3] * BITMAP_SIZE
-
+                mScaledBitmapWidth = BITMAP_SIZE * (r.nextInt(3-1) + 1)
             }
 
             // TODO - create the scaled bitmap using size set above
-
+            mScaledBitmap = Bitmap.createScaledBitmap(mBitmap, mScaledBitmapWidth, mScaledBitmapWidth, false)
         }
 
         // Start moving the BubbleView & updating the display
-        private fun start() {
+        fun start() {
 
             // Creates a WorkerThread
             val executor = Executors
@@ -224,6 +230,13 @@ class BubbleActivity : Activity() {
                 // move one step. If the BubbleView exits the display,
                 // stop the BubbleView's Worker Thread.
                 // Otherwise, request that the BubbleView be redrawn.
+                Log.i(TAG, "bubble speed: x: $mDx y: $mDy")
+                if(moveWhileOnScreen()){
+                    this@BubbleView.invalidate()
+                }
+                else {
+                    this.stop(false)
+                }
             }, 0, REFRESH_RATE.toLong(), TimeUnit.MILLISECONDS)
         }
 
@@ -231,7 +244,7 @@ class BubbleActivity : Activity() {
         // Remove Bubble from mFrame
         // Play pop sound if the BubbleView was popped
 
-        private fun stop(wasPopped: Boolean) {
+        internal fun stop(wasPopped: Boolean) {
 
             if (null != mMoverFuture) {
 
@@ -242,7 +255,7 @@ class BubbleActivity : Activity() {
                 // This work will be performed on the UI Thread
                 mFrame!!.post {
                     // TODO - Remove the BubbleView from mFrame
-
+                    mFrame!!.removeView(this@BubbleView)
 
                     // If the bubble was popped by user,
                     // play the popping sound and Log that pop was performed
@@ -261,17 +274,17 @@ class BubbleActivity : Activity() {
         override fun onDraw(canvas: Canvas) {
 
             // TODO - save the canvas
-
+            canvas.save()
             // TODO - increase the rotation of the original image by mDRotate
-
+            mRotate += mDRotate
             // TODO Rotate the canvas by current rotation
             // Hint - Rotate around the bubble's center, not its position
-
+            canvas.rotate(mRotate.toFloat(), mXPos + (mScaledBitmapWidth / 2), mYPos + (mScaledBitmapWidth / 2))
 
             // TODO - draw the bitmap at it's new location
-
+            canvas.drawBitmap(mScaledBitmap, mXPos, mYPos, mPainter)
             // TODO - restore the canvas
-
+            canvas.restore()
         }
 
         // Returns true if the BubbleView is still on the screen after the move
@@ -280,7 +293,8 @@ class BubbleActivity : Activity() {
         private fun moveWhileOnScreen(): Boolean {
 
             // TODO - Move the BubbleView
-
+            mXPos += mDx
+            mYPos += mDy
 
             return isOutOfView
 
@@ -309,12 +323,18 @@ class BubbleActivity : Activity() {
         // Hint: You can get all Views in mFrame using the
         // ViewGroup.getChildCount() method
         when (item.itemId) {
-            R.id.menu_add_bubble ->
-
+            R.id.menu_add_bubble -> {
+                val r = Random()
+                val newestBubble = BubbleView(applicationContext, r.nextInt(mDisplayWidth / 4).toFloat() + mDisplayWidth / 4, r.nextInt(mDisplayHeight / 4).toFloat() + mDisplayHeight / 4)
+                mFrame!!.addView(newestBubble)
+                newestBubble.start()
                 return true
-            R.id.menu_delete_bubble ->
-
+            }
+            R.id.menu_delete_bubble -> {
+                (mFrame!!.getChildAt(mFrame!!.childCount - 1) as BubbleView).stop(true)
+                //mFrame!!.removeViewAt(mFrame!!.childCount - 1)
                 return true
+            }
             R.id.menu_still_mode -> {
                 speedMode = STILL
                 return true
