@@ -3,11 +3,8 @@ package course.labs.gestureslab
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.gesture.Gesture
-import android.gesture.GestureLibrary
-import android.gesture.GestureOverlayView
+import android.gesture.*
 import android.gesture.GestureOverlayView.OnGesturePerformedListener
-import android.gesture.Prediction
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -67,17 +64,18 @@ class BubbleActivity : Activity(), OnGesturePerformedListener {
         mBitmap = BitmapFactory.decodeResource(resources, R.drawable.b64)
 
         // TODO - Fetch GestureLibrary from raw
+        mLibrary = GestureLibraries.fromRawResource(this, R.raw.gestures)
 
 
         val gestureOverlay = findViewById<View>(R.id.gestures_overlay) as GestureOverlayView
 
         // TODO - Make this the target of gesture detection callbacks
-
+        gestureOverlay.addOnGesturePerformedListener(this)
 
         // TODO - implement OnTouchListener to pass all events received by the
         // gestureOverlay to the basic gesture detector
 
-        gestureOverlay.setOnTouchListener { v, event -> true || false }
+        gestureOverlay.setOnTouchListener { v, event -> mGestureDetector!!.onTouchEvent(event)}
 
 
         // Uncomment next line to turn off gesture highlights
@@ -148,9 +146,14 @@ class BubbleActivity : Activity(), OnGesturePerformedListener {
                         // TODO - Implement onFling actions.
                         // You can get all Views in mFrame one at a time
                         // using the ViewGroup.getChildAt() method
+                        for(v in 0 until mFrame!!.childCount){
+                            val bubble = mFrame!!.getChildAt(v) as BubbleView
+                            if(bubble.intersects(event1.x, event1.y)){
+                                bubble.deflect(velocityX, velocityY)
+                            }
+                        }
 
-
-                        return true || false
+                        return true
                     }
 
                     // If a single tap intersects a BubbleView, then pop the
@@ -165,9 +168,18 @@ class BubbleActivity : Activity(), OnGesturePerformedListener {
                         // TODO - Implement onSingleTapConfirmed actions.
                         // You can get all Views in mFrame using the
                         // ViewGroup.getChildCount() method
+                        for(v in 0 until mFrame!!.childCount){
+                            val bubble = mFrame!!.getChildAt(v) as BubbleView
+                            if(bubble.intersects(event.x, event.y)){
+                                bubble.stop(true)
+                                return true
+                            }
+                        }
+                        val newBubble = BubbleView(applicationContext, event.x, event.y)
+                        mFrame!!.addView(newBubble)
+                        newBubble.start()
 
-
-                        return true || false
+                        return true
                     }
 
                     // Good practice to override this method because all
@@ -192,7 +204,7 @@ class BubbleActivity : Activity(), OnGesturePerformedListener {
         override fun onGesturePerformed(overlay: GestureOverlayView, gesture: Gesture) {
 
             // TODO - Get gesture predictions and assign it to 'predictions' variable below
-            val predictions: ArrayList<Prediction>? = null
+            val predictions: ArrayList<Prediction>? = mLibrary!!.recognize(gesture)
 
             if (predictions!!.size > 0) {
 
@@ -206,6 +218,21 @@ class BubbleActivity : Activity(), OnGesturePerformedListener {
                 // matches the openMenu gesture, open the menu. If the prediction
                 // matches
                 // the addTen gesture, add 10 bubbles to the screen.
+                val r = Random()
+                if(prediction.score >= MIN_PRED_SCORE){
+                    when(prediction.name) {
+                        "addTen" -> {
+                            for(i in 0 until 10){
+                                val newBubble = BubbleView(applicationContext, r.nextInt(mDisplayWidth / 2).toFloat() + mDisplayWidth / 2, r.nextInt(mDisplayHeight / 2).toFloat() + mDisplayHeight / 2)
+                                mFrame!!.addView(newBubble)
+                                newBubble.start()
+                            }
+                        }
+                        "openMenu" -> {
+                            openOptionsMenu()
+                        }
+                    }
+                }
 
             } else {
 
