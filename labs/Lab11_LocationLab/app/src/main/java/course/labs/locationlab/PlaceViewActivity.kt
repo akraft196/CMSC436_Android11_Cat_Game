@@ -57,7 +57,7 @@ class PlaceViewActivity : ListActivity(), LocationListener {
         // clicks on a Place Badge.
         placesListView.onItemClickListener = OnItemClickListener{ parent, view, position, id ->
             val intent = Intent(this, PlaceBadgeDetailActivity::class.java)
-            intent.putExtra("INTENT_DATA", INTENT_DATA)
+            intent.putExtra(INTENT_DATA, (mAdapter!!.getItem(position) as PlaceRecord).packageToIntent())
             startActivity(intent)
         }
 
