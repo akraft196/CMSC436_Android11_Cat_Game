@@ -91,7 +91,7 @@ class PlaceDownloaderTask(parent: PlaceViewActivity?, hasNetwork: Boolean) : Asy
 
     companion object {
         // TODO - set your www.geonames.org account name as USERNAME.
-        private const val USERNAME = "YOUR_USER_NAME"
+        private const val USERNAME = "MoTheKiwi"
         private val sMockLoc1 = Location(
                 LocationManager.NETWORK_PROVIDER)
         private val sMockLoc2 = Location(

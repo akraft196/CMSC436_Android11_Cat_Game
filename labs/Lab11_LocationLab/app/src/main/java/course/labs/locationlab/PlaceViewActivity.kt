@@ -1,6 +1,7 @@
 package course.labs.locationlab
 
 import android.app.ListActivity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -8,6 +9,8 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -15,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.Toast
+import kotlinx.android.synthetic.main.footer_view.*
 import java.util.*
 
 class PlaceViewActivity : ListActivity(), LocationListener {
@@ -27,6 +31,7 @@ class PlaceViewActivity : ListActivity(), LocationListener {
     // default minimum distance between old and new readings.
     private val mMinDistance = 1000.0f
     private var mLocationManager: LocationManager? = null
+    private var mLocationListener: LocationListener? = this
 
     // A fake location provider used for testing
     private var mMockLocationProvider: MockLocationProvider? = null
@@ -40,11 +45,21 @@ class PlaceViewActivity : ListActivity(), LocationListener {
         // ListView's adapter should be a PlaceViewAdapter
 
         // TODO - acquire reference to the LocationManager
+        mLocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (null != mLocationManager) {
+            Log.i(TAG, "Couldn't find the LocationManager")
+            // Return a LocationListener
+        }
 
         val placesListView = listView
 
         // TODO - Set an OnItemClickListener on the ListView placesListView to open a detail view when the user
         // clicks on a Place Badge.
+        placesListView.onItemClickListener = OnItemClickListener{ parent, view, position, id ->
+            val intent = Intent(this, PlaceBadgeDetailActivity::class.java)
+            intent.putExtra("INTENT_DATA", INTENT_DATA)
+            startActivity(intent)
+        }
 
 
         val footerView = layoutInflater.inflate(R.layout.footer_view,
@@ -71,6 +86,26 @@ class PlaceViewActivity : ListActivity(), LocationListener {
         // solution is to disable the footerView until you have a location.
         // Issue the following log call:
         // Log.i(TAG,"Location data is not available");
+        footerView.setOnClickListener {
+            Log.i(TAG, "Entered footerView.OnClickListener.onClick()")
+
+            //if we haven't seen the current location before
+            if(null != mLastLocationReading && !(mAdapter!!.intersects(mLastLocationReading))){
+                Log.i(TAG, "Starting Place Download")
+                PlaceDownloaderTask(this, true).execute(mLastLocationReading)
+            }
+            //if we have seen the current location before
+            else if (null != mLastLocationReading && mAdapter!!.intersects(mLastLocationReading)) {
+                Log.i(TAG, "You already have this location badge")
+                showToast("You already have this location badge")
+
+            }
+            //if there is no current location
+            else {
+                Log.i(TAG, "Location data is not available")
+                showToast("Location data is not available")
+            }
+        }
 
         placesListView.addFooterView(footerView)
         mAdapter = PlaceViewAdapter(applicationContext)
@@ -95,9 +130,20 @@ class PlaceViewActivity : ListActivity(), LocationListener {
             // TODO - Check NETWORK_PROVIDER and GPS_PROVIDER for an existing
             // location reading.
             // Only keep this last reading if it is fresh - less than 5 minutes old.
+            if (null != mLocationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER) && Calendar.getInstance().timeInMillis - mLocationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER).time < FIVE_MINS){
+                mLastLocationReading = mLocationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            } else if (null != mLocationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) && Calendar.getInstance().timeInMillis - mLocationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).time < FIVE_MINS) {
+                mLastLocationReading = mLocationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            }
 
+            // TODO - register to receive location updates from NETWORK_PROVIDER and GPS_PROVIDER
+            if(null != mLocationManager!!.getProvider(LocationManager.GPS_PROVIDER)){
+                mLocationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, mMinTime, mMinDistance, mLocationListener)
+            }
+            if(null != mLocationManager!!.getProvider(LocationManager.NETWORK_PROVIDER)){
+                mLocationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, mMinTime, mMinDistance, mLocationListener)
+            }
 
-            // TODO - register to receive location updates from NETWORK_PROVIDER
 
         } catch (e: SecurityException) {
             Log.d(TAG, e.localizedMessage)
@@ -107,7 +153,7 @@ class PlaceViewActivity : ListActivity(), LocationListener {
     override fun onPause() {
         shutdownMockLocationManager()
         // TODO - unregister for location updates
-
+        mLocationManager!!.removeUpdates(mLocationListener)
         super.onPause()
     }
 
@@ -134,6 +180,10 @@ class PlaceViewActivity : ListActivity(), LocationListener {
         // the current location
         // 3) If the current location is newer than the last locations, keep the
         // current location.
+        if(null == mLastLocationReading || currentLocation.time > mLastLocationReading!!.time) {
+            mLastLocationReading = currentLocation
+        }
+        //else we just keep the last location as-is
 
     }
 
